@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <string.h>
+
 #include "files.h"
 
 #include "common.h"
@@ -27,8 +29,19 @@ typedef struct __attribute((packed)) {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        printf("usage: y9read <input_bin>\n");
+        printf("usage: y9read <input_bin> [-mo] [--machine-order]\n");
+        printf("  <input_bin>    The overlay table binary to read (y9.bin).\n");
+        printf("  -mo, --machine-order  Log addresses in machine order (little-endian).\n");
+
         return 1;
+    }
+
+    int byteSwap = 0;
+    for (int i = 2; i < argc; i++) {
+        if (strcasecmp(argv[i], "-mo") == 0 || strcasecmp(argv[i], "--machine-order") == 0) {
+            byteSwap = 1;
+            break;
+        }
     }
 
     FileHandle hndl = FileCreateHandle(argv[1]);
@@ -45,14 +58,21 @@ int main(int argc, char** argv) {
 
     Y9OverlayEntry* currentEntry;
     for (currentEntry = entriesStart; currentEntry < entriesEnd; currentEntry++) {
+        u32 relocateAddr = byteSwap ?
+            __builtin_bswap32(currentEntry->relocateAddr) : currentEntry->relocateAddr;
+        u32 siStart = byteSwap ?
+            __builtin_bswap32(currentEntry->siStart) : currentEntry->siStart;
+        u32 siEnd = byteSwap ?
+            __builtin_bswap32(currentEntry->siEnd) : currentEntry->siEnd;
+
         printf(
             "%*u | %*s0x%08x | %*u | %*u | %*s0x%08x | %*s0x%08x | %*u | %*u\n",
             STR_LIT_LEN(T_OVERLAY_ID), currentEntry->overlayId,
-            STR_LIT_LEN(T_RELOCATE_ADDR) - 10, "", currentEntry->relocateAddr,
+            STR_LIT_LEN(T_RELOCATE_ADDR) - 10, "", relocateAddr,
             STR_LIT_LEN(T_RELOCATE_SIZE), currentEntry->relocateSize,
             STR_LIT_LEN(T_BSS_SIZE), currentEntry->bssSize,
-            STR_LIT_LEN(T_SI_START) - 10, "", currentEntry->siStart,
-            STR_LIT_LEN(T_SI_END) - 10, "", currentEntry->siEnd,
+            STR_LIT_LEN(T_SI_START) - 10, "", siStart,
+            STR_LIT_LEN(T_SI_END) - 10, "", siEnd,
             STR_LIT_LEN(T_FILE_ID), currentEntry->fileId,
             STR_LIT_LEN(T_RESERVED), currentEntry->_reserved
         );
