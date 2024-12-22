@@ -26,6 +26,11 @@ typedef struct __attribute((packed)) {
 #define T_RESERVED        "Reserved"
 
 int main(int argc, char** argv) {
+    if (argc < 2) {
+        printf("usage: y9read <input_bin>\n");
+        return 1;
+    }
+
     FileHandle hndl = FileCreateHandle(argv[1]);
 
     Y9OverlayEntry* entriesStart = (Y9OverlayEntry*)hndl.data_void;
@@ -54,4 +59,6 @@ int main(int argc, char** argv) {
     }
 
     FileDestroyHandle(hndl);
+
+    return 0;
 }
