@@ -12,4 +12,6 @@ typedef char s8;
 
 #define STR_LIT_LEN(string_literal) ((int)(sizeof(string_literal) - 1))
 
+void panic(const char* fmt, ...) __attribute__((noreturn));
+
 #endif
