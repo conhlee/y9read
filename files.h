@@ -18,6 +18,5 @@ extern const char* FileBasePath;
 FileHandle FileCreateHandle(const char* path);
 void FileDestroyHandle(FileHandle handle);
 
-int FileWriteHandle(FileHandle hndl, const char *path);
 
 #endif // FILES_H

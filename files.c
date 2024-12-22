@@ -56,39 +56,3 @@ void FileDestroyHandle(FileHandle handle) {
     handle.data_void = 0;
     handle.size = 0;
 }
-
-int FileWriteHandle(FileHandle hndl, const char* path) {
-    if (path == NULL) {
-        warn("FileWriteHandle: path is NULL");
-        return 1;
-    }
-
-    if (hndl.size > 0 && hndl.data_void == NULL) {
-        warn("FileWriteHandle: data is NULL");
-        return 1;
-    }
-
-    char fpath[512];
-    if (path[0] != '/')
-        snprintf(fpath, sizeof(fpath), "%s%s", FileBasePath, path);
-    else
-        snprintf(fpath, sizeof(fpath), "%s", path);
-
-    FILE* fp = fopen(fpath, "wb");
-    if (fp == NULL) {
-        warn("FileWriteHandle: fopen failed (path : %s)", fpath);
-        return 1;
-    }
-
-    if (hndl.size > 0) {
-        u64 bytesCopied = fwrite(hndl.data_void, 1, hndl.size, fp);
-        if (bytesCopied < hndl.size && ferror(fp)) {
-            fclose(fp);
-            warn("FileWriteHandle: fwrite error (path : %s)", fpath);
-            return 1;
-        }
-    }
-
-    fclose(fp);
-    return 0;
-}

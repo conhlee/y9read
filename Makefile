@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -O3
 TARGET = y9read
-SRC = main.c common.c files.c
+SRC = main.c files.c
 HEADERS = common.h files.h
 
 all: $(TARGET)
